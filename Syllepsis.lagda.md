@@ -1,9 +1,12 @@
-# The Kavvos-Sojakova proof of Syllepsis in Agda
+{---
+title = "The Kavvos-Sojakova proof of Syllepsis in Agda";
+---}
 
 In this file we work through the Kavvos-Sojakova proof of the syllepsis as given in [this paper](https://dl.acm.org/doi/10.1145/3531130.3533347).
 
 <details>
 <summary> Module header </summary>
+
 ```agda
 module Syllepsis where
 
@@ -14,9 +17,11 @@ variable
   x y z w : X
   p q r s t u v : x ≡ y
 ```
+
 </details>
 
 We start by defining composition of paths. Note that the one below is the weakest form of equality we can give with the J rule, and does not give us the definitional equality `refl ∙ p = p′. This was done to see if any of the paper proof relied on this property, and it was found that this was used in two places, which were both easily fixable. After this we give the horizontal composition of 2-paths, and both whiskering operations, as in the paper.
+
 ```agda
 infixr 5 _∙_
 _∙_ : x ≡ y → y ≡ z → x ≡ z
@@ -36,6 +41,7 @@ rwhisk refl r = refl
 We next give some standard properties of equality.
 <details>
 <summary>Standard properties of equality</summary>
+
 ```agda
 sym : x ≡ y → y ≡ x
 sym refl = refl
@@ -61,12 +67,14 @@ runit refl = refl
 assoc : (p : x ≡ y) → (q : y ≡ z) → (r : z ≡ w) → (p ∙ q) ∙ r ≡ p ∙ (q ∙ r)
 assoc refl refl refl = refl
 ```
+
 </details>
 
 Using these we can set up equational reasoning, as in the [standard library](https://agda.github.io/agda-stdlib/Relation.Binary.PropositionalEquality.Core.html#2708). We set this up slightly differently to normal, so that no extra reflexivity is added to the end of the proof. This is necessary as we are trying to reason about the paths we define with equational reasoning. Equational reasoning does not allow us to do anything tha could not be done with path composition, but it increases the readability of proofs considerably.
 
 <details>
 <summary>Equational Reasoning</summary>
+
 ```agda
 module ≡-Reasoning {A : Set} where
 
@@ -97,15 +105,19 @@ module ≡-Reasoning {A : Set} where
   syntax step-end  x y x≡y = x ≡⟨  x≡y ⟩′ y ∎
   syntax step-end˘ x y y≡x = x ≡˘⟨ y≡x ⟩′ y ∎
 ```
+
 </details>
 
 ## Squares
 We next formalise the various lemmas about squares that appear in section 5. This is a change in order from the paper, but allows us to keep all square related lemmas in the same place, at the cost of delaying the definition of Eckmann-Hilton. We start with the definition of a square.
+
 ```agda
 Square : (p : x ≡ y) → (q : x ≡ z) → (r : y ≡ w) → (s : z ≡ w) → Set
 Square p q r s = p ∙ r ≡ q ∙ s
 ```
+
 We now show Lemma 3.1, that degenerate squares are equivalent to paths. We rename ⇉ and ⇊ to cancel→ and cancel↓ as ⇉ and ⇊ are hard to read.
+
 ```agda
 cancel→ : Square p refl refl q → p ≡ q
 cancel→ {p = p} {q = q} α = begin
@@ -186,6 +198,7 @@ cancel↓linv {p = p} {q = q} α = begin
 ```
 
 We can define the horizontal and vertical composition of squares.
+
 ```agda
 horiz : Square p q r s → Square s t u v → Square p (q ∙ t) (r ∙ u) v
 horiz {p = p} {q = q} {r = r} {s = s} {t = t} {u = u} {v = v} α β = begin
@@ -219,6 +232,7 @@ vert {p = p} {q = q} {r = r} {s = s} {t = t} {u = u} {v = v} α β = begin
 ```
 
 We prove lemmas 5.1 and 5.2. The helper functions here abstract over the equivalences between paths and degenerate squares at which point we can use `cancel→linv` to fix the type.
+
 ```agda
 horiz→help : {p q r : x ≡ y} → (α : p ≡ q) → (β : q ≡ r) → α ∙ β ≡ cancel→ (horiz (cancel→′ α) (cancel→′ β))
 horiz→help {p = refl} refl refl = refl
@@ -235,6 +249,7 @@ vert→ α β = vert→help (cancel→ α) (cancel→ β) ∙ cong₂ (λ a b �
 
 ## Eckmann-Hilton
 We can now prove Eckmann-Hilton, starting with Lemmas 2.1 and 2.2, which proceed by path induction as promised.
+
 ```agda
 ulnat : (α : p ≡ q) → Square (lwhisk refl α) (lunit p) (lunit q) α
 ulnat {p = refl} refl = refl
@@ -248,6 +263,7 @@ wlrnat refl refl = refl
 ```
 
 Eckmann-Hilton is then the following.
+
 ```agda
 eh : (p q : refl {x = x} ≡ refl) → p ∙ q ≡ q ∙ p
 eh p q = begin
@@ -262,6 +278,7 @@ eh p q = begin
 ```
 
 We can prove the lemmas for Eckmann-Hilton on reflexivity as in the paper. The helper functions here correspond to the 'pentagon' equations in the paper.
+
 ```agda
 ehlreflhelp : {p q : x ≡ y} → (α : p ≡ q) → (r : y ≡ z) → (s : p ∙ r ≡ q ∙ r) → (θ : rwhisk α r ≡ s)
             → (sym (refl ⋆ θ) ∙ wlrnat α refl ∙ θ ⋆ refl) ∙ runit s ≡ lunit s
@@ -279,6 +296,7 @@ ehrrefl p = ehrreflhelp refl p p (cancel→ (ulnat p))
 ```
 
 We can also give proofs of both Lemmas 6.1 and 6.2. Again, as promised the results follow quickly from path induction. In the first two naturality lemmas we are left with a very degenerate square, which can be filled with `cancel↓′` on `refl`.
+
 ```agda
 ehnatl : {p q : refl {x = x} ≡ refl} → (α : p ≡ q) → (r : refl {x = x} ≡ refl) → Square (rwhisk α r) (eh p r) (eh q r) (lwhisk r α)
 ehnatl refl r = cancel↓′ refl
@@ -296,11 +314,14 @@ ehnatrnat refl = refl
 ## The Syllepsis
 
 We now have all the components of the syllepsis. The paper splits the syllepsis into a square `squareb`, and two triangles `trianglea` and `triangleb`. We cane construct `squareb` easily by path induction.
+
 ```agda
 squareb : {p q r s : refl {x = x} ≡ refl} → (α : p ≡ q) → (β : r ≡ s) → Square (wlrnat α β ⋆ refl) (vert (ehnatr β p) (ehnatl α s)) (vert (ehnatl α r) (ehnatr β q)) (refl ⋆ sym (wlrnat β α))
 squareb refl refl = cancel↓′ refl
 ```
+
 We will construct triangles a and c with the second proof given in the paper. We start by proving lemma 7.2. We first use path induction over the last two arguments, and then pass from degenerate squares to paths in `squarelemhelp` which allows us to finish the proof using path induction.
+
 ```agda
 squarelemhelp : {p q r : x ≡ y} → {u v w : y ≡ z}
               → (α : p ≡ q)
@@ -332,6 +353,7 @@ squarelem α β γ δ .(horiz α β) .(horiz γ δ) refl refl = begin
 ```
 
 After this, triangles a and c can be constructed by applying `squarelem`, letting agda solve all the arguments apart from the last two, and then using `ehnatrnat` and `ehnatlnat` to fill the equalities. As noted in the introduction, there were exactly two places where the definitional equality `refl ∙ p = p` was used in the paper and this was for these two equalities. These are luckily easily fixed by applying a left unit path.
+
 ```agda
 trianglea : (p q : refl {x = refl {x = x}} ≡ refl) → cancel→ (vert (ehnatr p refl) (ehnatl q refl))
                                                    ∙ cancel→ (urnat p) ⋆ cancel→ (ulnat q)
@@ -345,6 +367,7 @@ trianglec p q = squarelem (ehnatl q refl) (ulnat q) (ehnatr p refl) (urnat p) (u
 ```
 
 We then construct the syllepsis generator from Lemma 7.3. In contrast to the paper proof, we first induct on all of `a21`, `a31`, `a24`, `a53`, `a56`, and the lower triangle (note that `a31` is not inducted on in the paper proof). We then use a with extraction to get access to the path `ϕ ≡ ψ` so that we can induct on it. After this we simply need to rewrite by `t1` (using a `sym (runit _)` to simplify its type.
+
 ```agda
 syllepsisgen : {a1 a2 a3 a4 a5 a6 : x ≡ y}
              → (a21 : a2 ≡ a1)
@@ -364,6 +387,7 @@ syllepsisgen refl refl refl refl .(cancel→ θ ∙ refl) refl ϕ θ t1 refl squ
 ```
 
 Finally we can use `syllepsisgen` with `trianglea`, `squareb` and `trianglec` to get the syllepsis.
+
 ```agda
 syllepsis : (p q : refl {x = refl {x = x}} ≡ refl) → eh p q ∙ eh q p ≡ refl
 syllepsis p q = syllepsisgen (cancel→ (ulnat p) ⋆ cancel→ (urnat q))
