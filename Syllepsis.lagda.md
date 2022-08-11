@@ -234,17 +234,35 @@ vert {p = p} {q = q} {r = r} {s = s} {t = t} {u = u} {v = v} α β = begin
 We prove lemmas 5.1 and 5.2. The helper functions here abstract over the equivalences between paths and degenerate squares at which point we can use `cancel→linv` to fix the type.
 
 ```agda
-horiz→help : {p q r : x ≡ y} → (α : p ≡ q) → (β : q ≡ r) → α ∙ β ≡ cancel→ (horiz (cancel→′ α) (cancel→′ β))
+horiz→help : {p q r : x ≡ y} → (α : p ≡ q) → (β : q ≡ r)
+           → α ∙ β ≡ cancel→ (horiz (cancel→′ α) (cancel→′ β))
 horiz→help {p = refl} refl refl = refl
 
-horiz→ : {p q r : x ≡ y} → (α : Square p refl refl q) → (β : Square q refl refl r) → cancel→ α ∙ cancel→ β ≡ cancel→ (horiz α β)
-horiz→ α β = (horiz→help (cancel→ α) (cancel→ β)) ∙ cong₂ (λ a b → cancel→ (horiz a b)) (cancel→linv α) (cancel→linv β)
+horiz→ : {p q r : x ≡ y} → (α : Square p refl refl q) → (β : Square q refl refl r)
+       → cancel→ α ∙ cancel→ β ≡ cancel→ (horiz α β)
+horiz→ α β = begin
+  cancel→ α ∙ cancel→ β
+    ≡⟨ horiz→help (cancel→ α) (cancel→ β) ⟩
+  cancel→ (horiz (cancel→′ (cancel→ α)) (cancel→′ (cancel→ β)))
+    ≡⟨ cong₂ (λ a b → cancel→ (horiz a b)) (cancel→linv α) (cancel→linv β) ⟩′
+  cancel→ (horiz α β) ∎
+  where open ≡-Reasoning
 
-vert→help : {p q : x ≡ y} → {r s : y ≡ z} → (α : p ≡ q) → (β : r ≡ s) → α ⋆ β ≡ cancel→ (vert (cancel→′ α) (cancel→′ β))
+vert→help : {p q : x ≡ y} → {r s : y ≡ z} → (α : p ≡ q) → (β : r ≡ s)
+          → α ⋆ β ≡ cancel→ (vert (cancel→′ α) (cancel→′ β))
 vert→help {p = refl} {r = refl} refl refl = refl
 
-vert→ : {p q : x ≡ y} → {r s : y ≡ z} → (α : Square p refl refl q) → (β : Square r refl refl s) → cancel→ α ⋆ cancel→ β ≡ cancel→ (vert α β)
-vert→ α β = vert→help (cancel→ α) (cancel→ β) ∙ cong₂ (λ a b → cancel→ (vert a b)) (cancel→linv α) (cancel→linv β)
+vert→ : {p q : x ≡ y} → {r s : y ≡ z}
+      → (α : Square p refl refl q)
+      → (β : Square r refl refl s)
+      → cancel→ α ⋆ cancel→ β ≡ cancel→ (vert α β)
+vert→ α β = begin
+  cancel→ α ⋆ cancel→ β
+    ≡⟨ vert→help (cancel→ α) (cancel→ β) ⟩
+  cancel→ (vert (cancel→′ (cancel→ α)) (cancel→′ (cancel→ β)))
+    ≡⟨ cong₂ (λ a b → cancel→ (vert a b)) (cancel→linv α) (cancel→linv β) ⟩′
+  cancel→ (vert α β) ∎
+  where open ≡-Reasoning
 ```
 
 ## Eckmann-Hilton
@@ -280,14 +298,16 @@ eh p q = begin
 We can prove the lemmas for Eckmann-Hilton on reflexivity as in the paper. The helper functions here correspond to the 'pentagon' equations in the paper.
 
 ```agda
-ehlreflhelp : {p q : x ≡ y} → (α : p ≡ q) → (r : y ≡ z) → (s : p ∙ r ≡ q ∙ r) → (θ : rwhisk α r ≡ s)
+ehlreflhelp : {p q : x ≡ y} → (α : p ≡ q) → (r : y ≡ z) → (s : p ∙ r ≡ q ∙ r)
+            → (θ : rwhisk α r ≡ s)
             → (sym (refl ⋆ θ) ∙ wlrnat α refl ∙ θ ⋆ refl) ∙ runit s ≡ lunit s
 ehlreflhelp refl r .(rwhisk refl r) refl = refl
 
 ehlrefl : (p : refl {x = x} ≡ refl) → eh refl p ∙ runit p ≡ lunit p
 ehlrefl p = ehlreflhelp p refl p (cancel→ (urnat p))
 
-ehrreflhelp : (p : x ≡ y) → {q r : y ≡ z} → (β : q ≡ r) → (s : p ∙ q ≡ p ∙ r) → (θ : lwhisk p β ≡ s)
+ehrreflhelp : (p : x ≡ y) → {q r : y ≡ z} → (β : q ≡ r) → (s : p ∙ q ≡ p ∙ r)
+            → (θ : lwhisk p β ≡ s)
             → (sym (θ ⋆ refl) ∙ wlrnat refl β ∙ refl ⋆ θ) ∙ lunit s ≡ runit s
 ehrreflhelp p refl .(lwhisk p refl) refl = refl
 
@@ -298,16 +318,20 @@ ehrrefl p = ehrreflhelp refl p p (cancel→ (ulnat p))
 We can also give proofs of both Lemmas 6.1 and 6.2. Again, as promised the results follow quickly from path induction. In the first two naturality lemmas we are left with a very degenerate square, which can be filled with `cancel↓′` on `refl`.
 
 ```agda
-ehnatl : {p q : refl {x = x} ≡ refl} → (α : p ≡ q) → (r : refl {x = x} ≡ refl) → Square (rwhisk α r) (eh p r) (eh q r) (lwhisk r α)
+ehnatl : {p q : refl {x = x} ≡ refl} → (α : p ≡ q) → (r : refl {x = x} ≡ refl)
+       → Square (rwhisk α r) (eh p r) (eh q r) (lwhisk r α)
 ehnatl refl r = cancel↓′ refl
 
-ehnatr : {p q : refl {x = x} ≡ refl} → (α : p ≡ q) → (r : refl {x = x} ≡ refl) → Square (lwhisk r α) (eh r p) (eh r q) (rwhisk α r)
+ehnatr : {p q : refl {x = x} ≡ refl} → (α : p ≡ q) → (r : refl {x = x} ≡ refl)
+       → Square (lwhisk r α) (eh r p) (eh r q) (rwhisk α r)
 ehnatr refl r = cancel↓′ refl
 
-ehnatlnat : {p : refl {x = x} ≡ refl} → (α : refl ≡ p) → horiz (ehnatl α refl) (ulnat α) ≡ lwhisk (rwhisk α refl) (ehrrefl p) ∙ urnat α
+ehnatlnat : {p : refl {x = x} ≡ refl} → (α : refl ≡ p) →
+          horiz (ehnatl α refl) (ulnat α) ≡ lwhisk (rwhisk α refl) (ehrrefl p) ∙ urnat α
 ehnatlnat refl = refl
 
-ehnatrnat : {p : refl {x = x} ≡ refl} → (α : refl ≡ p) → horiz (ehnatr α refl) (urnat α) ≡ lwhisk (lwhisk refl α) (ehlrefl p) ∙ ulnat α
+ehnatrnat : {p : refl {x = x} ≡ refl} → (α : refl ≡ p)
+          → horiz (ehnatr α refl) (urnat α) ≡ lwhisk (lwhisk refl α) (ehlrefl p) ∙ ulnat α
 ehnatrnat refl = refl
 ```
 
@@ -316,7 +340,13 @@ ehnatrnat refl = refl
 We now have all the components of the syllepsis. The paper splits the syllepsis into a square `squareb`, and two triangles `trianglea` and `triangleb`. We cane construct `squareb` easily by path induction.
 
 ```agda
-squareb : {p q r s : refl {x = x} ≡ refl} → (α : p ≡ q) → (β : r ≡ s) → Square (wlrnat α β ⋆ refl) (vert (ehnatr β p) (ehnatl α s)) (vert (ehnatl α r) (ehnatr β q)) (refl ⋆ sym (wlrnat β α))
+squareb : {p q r s : refl {x = x} ≡ refl}
+        → (α : p ≡ q)
+        → (β : r ≡ s)
+        → Square (wlrnat α β ⋆ refl)
+                 (vert (ehnatr β p) (ehnatl α s))
+                 (vert (ehnatl α r) (ehnatr β q))
+                 (refl ⋆ sym (wlrnat β α))
 squareb refl refl = cancel↓′ refl
 ```
 
@@ -355,15 +385,31 @@ squarelem α β γ δ .(horiz α β) .(horiz γ δ) refl refl = begin
 After this, triangles a and c can be constructed by applying `squarelem`, letting agda solve all the arguments apart from the last two, and then using `ehnatrnat` and `ehnatlnat` to fill the equalities. As noted in the introduction, there were exactly two places where the definitional equality `refl ∙ p = p` was used in the paper and this was for these two equalities. These are luckily easily fixed by applying a left unit path.
 
 ```agda
-trianglea : (p q : refl {x = refl {x = x}} ≡ refl) → cancel→ (vert (ehnatr p refl) (ehnatl q refl))
-                                                   ∙ cancel→ (urnat p) ⋆ cancel→ (ulnat q)
-                                                   ≡ cancel→ (ulnat p) ⋆ cancel→ (urnat q)
-trianglea p q = squarelem (ehnatr p refl) (urnat p) (ehnatl q refl) (ulnat q) (ulnat p) (urnat q) (ehnatrnat p ∙ lunit (ulnat p)) (ehnatlnat q ∙ lunit (urnat q))
+trianglea : (p q : refl {x = refl {x = x}} ≡ refl)
+          → cancel→ (vert (ehnatr p refl) (ehnatl q refl))
+          ∙ cancel→ (urnat p) ⋆ cancel→ (ulnat q)
+          ≡ cancel→ (ulnat p) ⋆ cancel→ (urnat q)
+trianglea p q = squarelem (ehnatr p refl)
+                          (urnat p)
+                          (ehnatl q refl)
+                          (ulnat q)
+                          (ulnat p)
+                          (urnat q)
+                          (ehnatrnat p ∙ lunit (ulnat p))
+                          (ehnatlnat q ∙ lunit (urnat q))
 
-trianglec : (p q : refl {x = refl {x = x}} ≡ refl) → cancel→ (vert (ehnatl q refl) (ehnatr p refl))
-                                                   ∙ cancel→ (ulnat q) ⋆ cancel→ (urnat p)
-                                                   ≡ cancel→ (urnat q) ⋆ cancel→ (ulnat p)
-trianglec p q = squarelem (ehnatl q refl) (ulnat q) (ehnatr p refl) (urnat p) (urnat q) (ulnat p) (ehnatlnat q ∙ lunit (urnat q)) (ehnatrnat p ∙ lunit (ulnat p))
+trianglec : (p q : refl {x = refl {x = x}} ≡ refl)
+          → cancel→ (vert (ehnatl q refl) (ehnatr p refl))
+          ∙ cancel→ (ulnat q) ⋆ cancel→ (urnat p)
+          ≡ cancel→ (urnat q) ⋆ cancel→ (ulnat p)
+trianglec p q = squarelem (ehnatl q refl)
+                          (ulnat q)
+                          (ehnatr p refl)
+                          (urnat p)
+                          (urnat q)
+                          (ulnat p)
+                          (ehnatlnat q ∙ lunit (urnat q))
+                          (ehnatrnat p ∙ lunit (ulnat p))
 ```
 
 We then construct the syllepsis generator from Lemma 7.3. In contrast to the paper proof, we first induct on all of `a21`, `a31`, `a24`, `a53`, `a56`, and the lower triangle (note that `a31` is not inducted on in the paper proof). We then use a with extraction to get access to the path `ϕ ≡ ψ` so that we can induct on it. After this we simply need to rewrite by `t1` (using a `sym (runit _)` to simplify its type.
