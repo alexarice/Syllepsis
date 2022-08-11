@@ -326,12 +326,14 @@ ehnatr : {p q : refl {x = x} ≡ refl} → (α : p ≡ q) → (r : refl {x = x} 
        → Square (lwhisk r α) (eh r p) (eh r q) (rwhisk α r)
 ehnatr refl r = cancel↓′ refl
 
-ehnatlnat : {p : refl {x = x} ≡ refl} → (α : refl ≡ p) →
-          horiz (ehnatl α refl) (ulnat α) ≡ lwhisk (rwhisk α refl) (ehrrefl p) ∙ urnat α
+ehnatlnat : {p : refl {x = x} ≡ refl} → (α : refl ≡ p)
+          → horiz (ehnatl α refl) (ulnat α)
+          ≡ lwhisk (rwhisk α refl) (ehrrefl p) ∙ urnat α
 ehnatlnat refl = refl
 
 ehnatrnat : {p : refl {x = x} ≡ refl} → (α : refl ≡ p)
-          → horiz (ehnatr α refl) (urnat α) ≡ lwhisk (lwhisk refl α) (ehlrefl p) ∙ ulnat α
+          → horiz (ehnatr α refl) (urnat α)
+          ≡ lwhisk (lwhisk refl α) (ehlrefl p) ∙ ulnat α
 ehnatrnat refl = refl
 ```
 
@@ -428,7 +430,8 @@ syllepsisgen : {a1 a2 a3 a4 a5 a6 : x ≡ y}
              → (t2 : cancel→ θ ∙ a56 ≡ a46)
              → (square : Square (a24 ⋆ refl) ϕ θ (refl ⋆ sym a53))
              → (sym a21 ∙ a24 ∙ a46) ∙ (sym a56 ∙ a53 ∙ a31) ≡ refl
-syllepsisgen refl refl refl refl .(cancel→ θ ∙ refl) refl ϕ θ t1 refl square with cancel↓ square
+syllepsisgen refl refl refl refl .(cancel→ θ ∙ refl) refl ϕ θ t1 refl square
+  with cancel↓ square
 ... | refl rewrite sym (runit _) ∙ t1 = refl
 ```
 
