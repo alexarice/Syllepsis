@@ -1,11 +1,5 @@
 @import "colours";
 
-#content {
-    max-width: 500px;
-    width: 85%;
-    margin: auto;
-}
-
 .photo {
   display: block;
   margin-left: auto;
@@ -22,6 +16,13 @@ body {
     font-family: 'Source Code Pro', monospace;
     line-height: 1.2;
     font-size: 14px;
+    max-width: 650px;
+    width: 85%;
+    margin: auto;
+}
+
+p {
+    text-align: justify;
 }
 
 pre {

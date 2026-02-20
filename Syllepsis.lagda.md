@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/css/style-posts.css">
+<link rel="stylesheet" href="/css/style.css">
 
 # The Kavvos-Sojakova proof of Syllepsis in Agda
 
