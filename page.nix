@@ -13,6 +13,7 @@ mkDerivation {
   buildPhase = ''
     agda --html --html-highlight=auto *.md --css /css/Agda.css
     mmd html/*.md
+    mv html/Syllepsis.html html/index.html
   '';
 
   installPhase = ''
