@@ -14,6 +14,9 @@ jobs:
     - uses: cachix/install-nix-action@v31
       with:
         github_access_token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: cachix/cachix-action@v15
+      with:
+        name: all-agda
     - run: nix build
     - name: Upload static files as artifact
       id: deployment
