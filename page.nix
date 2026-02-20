@@ -1,4 +1,4 @@
-{ mkDerivation, multimarkdown, sass }:
+{ mkDerivation, multimarkdown }:
 
 mkDerivation {
   pname = "syllepsis";
@@ -8,18 +8,16 @@ mkDerivation {
 
   LC_ALL = "en_GB.UTF-8";
 
-  buildInputs = [ multimarkdown sass ];
+  buildInputs = [ multimarkdown ];
 
   buildPhase = ''
     agda --html --html-highlight=auto *.md --css /css/Agda.css
     mmd html/*.md
     mv html/Syllepsis.html html/index.html
-    sass css/*.scss --update
   '';
 
   installPhase = ''
-    mkdir -p $out/css
+    mkdir -p $out
     cp html/*.html $out
-    cp css/*.css $out/css
   '';
 }
