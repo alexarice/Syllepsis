@@ -1,4 +1,6 @@
 <link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/Agda.css">
+<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:Regular,Semi-bold" rel="stylesheet" type="text/css">
 
 # The Kavvos-Sojakova proof of Syllepsis in Agda
 
