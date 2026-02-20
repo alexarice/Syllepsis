@@ -13,9 +13,10 @@
         inherit system;
       };
       agdaPackages = all-agda.legacyPackages."x86_64-linux".agdaPackages-2_6_4;
-    in rec {
-      packages = {
+    in {
+      packages = rec {
         page = agdaPackages.callPackage ./page.nix { };
+        default = page;
       };
     }
   );
