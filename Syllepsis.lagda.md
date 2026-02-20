@@ -1,6 +1,4 @@
-{---
-title = "The Kavvos-Sojakova proof of Syllepsis in Agda";
----}
+# The Kavvos-Sojakova proof of Syllepsis in Agda
 
 In this file we work through the Kavvos-Sojakova proof of the syllepsis as given in [this paper](https://dl.acm.org/doi/10.1145/3531130.3533347).
 
